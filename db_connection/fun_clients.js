@@ -63,3 +63,22 @@ app.get("/employee/:id", async (req, res) => {
         res.status(500).json({ message: "Error del servidor" });
     }
 });
+
+//Get services by client id
+app.get("/services/:client_id", async (req, res) => {
+    const { client_id } = req.params;
+    try {
+        const result = await pool.query(
+            'SELECT * FROM services WHERE client_id = $1',
+            [client_id]
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Servicios no encontrados" });
+        }
+
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error("Error al obtener los servicios", err);
+        res.status(500).json({ message: "Error del servidor" });
+    }
+});
