@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import { Pool } from "pg";
+import { use } from "react";
 
 dotenv.config();
 const app = express();
@@ -84,12 +85,12 @@ app.get("/services/:client_id", async (req, res) => {
 });
 
 //Get state by id
-app.get("/state/:id", async (req, res) => {
-    const { id } = req.params;
+app.get("/state/:user_phone", async (req, res) => {
+    const { user_phone } = req.params;
     try {
         const result = await pool.query(
             'SELECT * FROM states WHERE id = $1',
-            [id]
+            [user_phone]
         );
         if (result.rows.length === 0) {
             return res.status(404).json({ step: -1 });
@@ -101,3 +102,34 @@ app.get("/state/:id", async (req, res) => {
     }
 });
 
+//Create state
+app.post("/state", express.json(), async (req, res) => {
+    const { user_phone, step, client_id } = req.body;
+    try {
+        const result = await pool.query(
+            'INSERT INTO states (user_phone, step, client_id) VALUES ($1, $2, $3) RETURNING *',
+            [user_phone, step, client_id]
+        );
+        res.status(201).json(result.rows[0]);
+    }
+    catch (err) {
+        console.error("Error al crear el estado", err);
+        res.status(500).json({ message: "Error del servidor" });
+    }
+});
+
+//Update state
+app.put("/state/:user_state_id", express.json(), async (req, res) => {
+    const { user_state_id } = req.params;
+    const { step, employee_selected, selected_date, selected_time } = req.body;
+    try {
+        const result = await pool.query(
+            'UPDATE states SET step = $1, employee_selected = $2, selected_date = $3, selected_time = $4 WHERE user_state_id = $5 RETURNING *',
+            [step, employee_selected, selected_date, selected_time, user_state_id]
+        );
+        res.status(200).json(result.rows[0]);
+    }catch (err) {
+        console.error("Error al actualizar el estado", err);
+        res.status(500).json({ message: "Error del servidor" });
+    }
+});
