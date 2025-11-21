@@ -23,7 +23,7 @@ app.listen(PORT, () => {
     console.log(`Servidor de base de datos escuchando en el puerto ${PORT}`);
 });
 
-//Obtener cliente por número de WhatsApp Business
+//Get clien by phone number
 app.get("/client/:whatsapp_number", async (req, res) => {
     const { whatsapp_number } = req.params;
 
@@ -40,6 +40,26 @@ app.get("/client/:whatsapp_number", async (req, res) => {
         res.status(200).json(result.rows[0]);
     } catch (err) {
         console.error("Error al obtener el cliente", err);
+        res.status(500).json({ message: "Error del servidor" });
+    }
+});
+
+//Get employee by id
+
+app.get("/employee/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            'SELECT * FROM employees WHERE client_id = $1',
+            [id]
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Empleado no encontrado" });
+        }
+
+        res.status(200).json(result.rows[0]);
+    } catch (err) {
+        console.error("Error al obtener el empleado", err);
         res.status(500).json({ message: "Error del servidor" });
     }
 });
