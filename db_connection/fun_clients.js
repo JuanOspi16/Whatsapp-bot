@@ -82,3 +82,22 @@ app.get("/services/:client_id", async (req, res) => {
         res.status(500).json({ message: "Error del servidor" });
     }
 });
+
+//Get state by id
+app.get("/state/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            'SELECT * FROM states WHERE id = $1',
+            [id]
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ step: -1 });
+        }
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error("Error al obtener el estado", err);
+        res.status(500).json({ message: "Error del servidor" });
+    }
+});
+
