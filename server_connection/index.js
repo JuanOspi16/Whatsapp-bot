@@ -3,7 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import axios from "axios";
 
-import { get_client } from "./api_client.js";
+import { get_client } from "./APIs/api_client.js";
 
 dotenv.config();
 
@@ -44,7 +44,7 @@ app.post("/webhook", async (req, res) => {
             const from = message.from;
             const text = message.text.body;
             console.log(`Mensaje recibido de ${from}: ${text}`);
-            const bot_number = body.entry[0].changes[0].value.metadata.display_phone_number;
+            bot_number = body.entry[0].changes[0].value.metadata.display_phone_number;
 
             const client = await get_client({ phone_number: bot_number });
 
