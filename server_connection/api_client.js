@@ -1,6 +1,7 @@
-export const API_URL = 'http://localhost:5432';
+export const API_URL = 'http://localhost:3001';
 
 export async function get_client({phone_number}) {
+    console.log(`Fetching client with phone number: ${phone_number}`);
     const response = await fetch(`${API_URL}/client/${phone_number}`, {
         method: 'GET',
         headers: {
