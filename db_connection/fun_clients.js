@@ -119,13 +119,13 @@ app.post("/state", express.json(), async (req, res) => {
 });
 
 //Update state
-app.put("/state/:user_state_id", express.json(), async (req, res) => {
-    const { user_state_id } = req.params;
+app.put("/state/:id", express.json(), async (req, res) => {
+    const { id } = req.params;
     const { step, employee_selected, selected_date, selected_time } = req.body;
     try {
         const result = await pool.query(
             'UPDATE states SET step = $1, employee_selected = $2, selected_date = $3, selected_time = $4 WHERE user_state_id = $5 RETURNING *',
-            [step, employee_selected, selected_date, selected_time, user_state_id]
+            [step, employee_selected, selected_date, selected_time, id]
         );
         res.status(200).json(result.rows[0]);
     }catch (err) {
