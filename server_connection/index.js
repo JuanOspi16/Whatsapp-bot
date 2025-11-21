@@ -1,3 +1,5 @@
+import { get_client } from "../db_connection/fun_clients.js";
+
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -37,10 +39,11 @@ app.post("/webhook", async (req, res) => {
         if(message && message.type === "text"){
             const from = message.from;
             const text = message.text.body;
+            const bot_number = body["entry"][0]["changes"][0]["value"]["metadata"]["display_phone_number"]
+            
+            console.log(get_client({phone_number: bot_number}));
 
-            console.log(`Mensaje recibido de ${from}: ${text}`);
-
-            await sendMessage(from, "Hola! Soy el bot de pruebas");
+            await sendMessage(from, `Hola! Soy el bot de pruebas desde ${bot_number}`);
         }
     }
 

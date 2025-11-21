@@ -1,6 +1,0 @@
-id,nombre_negocio,token_wa,phone-number_id,waba_id,dominio_webhook
-
-dia,apertura,cierre
-
-id,fecha,hora,cliente,teléfono,servicio
-
