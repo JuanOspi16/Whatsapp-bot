@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import express from "express";
 import { Pool } from "pg";
-import { use } from "react";
 
 dotenv.config();
 const app = express();
@@ -57,7 +56,7 @@ app.get("/employee/:id", async (req, res) => {
             return res.status(404).json({ message: "Empleado no encontrado" });
         }
 
-        res.status(200).json(result.rows[0]);
+        res.status(200).json(result.rows);
     } catch (err) {
         console.error("Error al obtener el empleado", err);
         res.status(500).json({ message: "Error del servidor" });
@@ -88,11 +87,11 @@ app.get("/state/:user_phone", async (req, res) => {
     const { user_phone } = req.params;
     try {
         const result = await pool.query(
-            'SELECT * FROM user_states WHERE id = $1',
+            'SELECT * FROM user_states WHERE user_phone = $1',
             [user_phone]
         );
         if (result.rows.length === 0) {
-            return res.status(404).json({ step: -1 });
+            return res.status(200).json({ step: -1 });
         }
         res.status(200).json(result.rows);
     } catch (err) {
@@ -106,10 +105,10 @@ app.post("/state", express.json(), async (req, res) => {
     const { user_phone, step, employee_selected, selected_date, selected_time, client_id } = req.body;
     try {
         const result = await pool.query(
-            'INSERT INTO states (user_phone, step, employee_selected, selected_date, selected_time, client_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            'INSERT INTO user_states (user_phone, step, employee_selected, selected_date, selected_time, client_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
             [user_phone, step, employee_selected, selected_date, selected_time,  client_id]
         );
-        res.status(201).json(result.rows[0]);
+        res.status(201).json(result.rows);
     }
     catch (err) {
         console.error("Error al crear el estado", err);
@@ -123,7 +122,7 @@ app.put("/state/:id", express.json(), async (req, res) => {
     const { step, employee_selected, selected_date, selected_time } = req.body;
     try {
         const result = await pool.query(
-            'UPDATE states SET step = $1, employee_selected = $2, selected_date = $3, selected_time = $4 WHERE user_state_id = $5 RETURNING *',
+            'UPDATE user_states SET step = $1, employee_selected = $2, selected_date = $3, selected_time = $4 WHERE user_state_id = $5 RETURNING *',
             [step, employee_selected, selected_date, selected_time, id]
         );
         res.status(200).json(result.rows[0]);

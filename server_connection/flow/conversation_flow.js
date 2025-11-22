@@ -1,11 +1,10 @@
-import { get_state,  get_employee, create_state, get_services} from "../../db_connection/fun_clients.js";
+import { get_state,  get_employee, create_state, get_services} from "../APIs/api_client.js";
 
 export async function handle_conversation({user_phone, message_text, client}) {
     const state = await get_state({user_phone});
-
     switch (state.step) {
         case -1:
-            const message = `Hola! Bienvenido a ${client.business_name}\n`;
+            let message = `Hola! Bienvenido a ${client.business_name}\n`;
             const employees = await get_employee({id: client.id});
 
             if (employees.length > 1) {  //¿Multiple employees?
@@ -15,7 +14,7 @@ export async function handle_conversation({user_phone, message_text, client}) {
                     message += `${index + 1}. ${employee.name}\n`;
                 })
 
-                create_state({user_phone, step: 0, client_id: client.id});
+                create_state({user_phone: user_phone, step: 0, client_id: client.id});
 
             } else if (employees.length === 1) { //Only one employee
                 message += `Serás atendido por ${employees[0].name}\n`;

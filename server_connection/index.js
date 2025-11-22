@@ -3,7 +3,8 @@ import express from "express";
 import bodyParser from "body-parser";
 import axios from "axios";
 
-import { handle_conversation } from "./flow/conversation_flow";
+import { handle_conversation } from "./flow/conversation_flow.js";
+import { get_client } from "./APIs/api_client.js";
 
 dotenv.config();
 

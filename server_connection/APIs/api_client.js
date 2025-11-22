@@ -62,13 +62,13 @@ export async function get_state({user_phone}) {
     }
 };
 
-export async function create_state({user_phone, step, client_id}) {
+export async function create_state({user_phone, step, employee_selected, selected_date, selected_time, client_id}) {
     const response = await fetch(`${API_URL}/state`, {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_phone, step, client_id }),
+        body: JSON.stringify({ user_phone, step, employee_selected, selected_date, selected_time, client_id}),
     });
-    if (response.status === 200) {
+    if (response.status === 201) {
         const data = await response.json();
         return data;
     }
