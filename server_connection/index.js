@@ -35,7 +35,7 @@ app.get("/webhook", (req, res) => {
 
 // Recibir mensajes
 app.post("/webhook", async (req, res) => {
-    console.log("Webhook recibió algo:", JSON.stringify(req.body, null, 2));
+    //console.log("Webhook recibió algo:", JSON.stringify(req.body, null, 2));
     const body = req.body;
 
     if (body.object) {
@@ -75,7 +75,7 @@ async function sendMessage(to, text, phoneNumberId, token) {
             },
         });
 
-        console.log(`Mensaje enviado a ${to}: ${text}`);
+        //console.log(`Mensaje enviado a ${to}: ${text}`);
     } catch (error) {
         console.error(
             "Error al enviar el mensaje:",
