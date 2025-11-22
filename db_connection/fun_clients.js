@@ -46,7 +46,6 @@ app.get("/client/:whatsapp_number", async (req, res) => {
 });
 
 //Get employee by id
-
 app.get("/employee/:id", async (req, res) => {
     const { id } = req.params;
     try {
@@ -89,7 +88,7 @@ app.get("/state/:user_phone", async (req, res) => {
     const { user_phone } = req.params;
     try {
         const result = await pool.query(
-            'SELECT * FROM states WHERE id = $1',
+            'SELECT * FROM user_states WHERE id = $1',
             [user_phone]
         );
         if (result.rows.length === 0) {
@@ -104,11 +103,11 @@ app.get("/state/:user_phone", async (req, res) => {
 
 //Create state
 app.post("/state", express.json(), async (req, res) => {
-    const { user_phone, step, client_id } = req.body;
+    const { user_phone, step, employee_selected, selected_date, selected_time, client_id } = req.body;
     try {
         const result = await pool.query(
-            'INSERT INTO states (user_phone, step, client_id) VALUES ($1, $2, $3) RETURNING *',
-            [user_phone, step, client_id]
+            'INSERT INTO states (user_phone, step, employee_selected, selected_date, selected_time, client_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            [user_phone, step, employee_selected, selected_date, selected_time,  client_id]
         );
         res.status(201).json(result.rows[0]);
     }

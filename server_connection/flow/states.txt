@@ -1,0 +1,3 @@
+state -1 = No existe estado
+state 0 = Ya se preguntó quién desea que lo atienda, y se está esperando por la respuesta
+state 1 = Ya se preguntó qué servicio desea, y se está esperando la respuesta

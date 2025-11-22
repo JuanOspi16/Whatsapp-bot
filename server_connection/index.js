@@ -3,7 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import axios from "axios";
 
-import { get_client, get_employee } from "./APIs/api_client.js";
+import { handle_conversation } from "./flow/conversation_flow";
 
 dotenv.config();
 
@@ -44,11 +44,13 @@ app.post("/webhook", async (req, res) => {
             const from = message.from;
             const text = message.text.body;
             
-            bot_number = body.entry[0].changes[0].value.metadata.display_phone_number;
+            const bot_number = body.entry[0].changes[0].value.metadata.display_phone_number;
 
             const client = await get_client({ phone_number: bot_number });
 
-            await sendMessage(from, `Hola! Bienvenido a ${client.business_name}`, client.phone_number_id, token); //TODO: cambiar token por client.whatsapp_token
+            const reply = await handle_conversation({ user_phone: from, message_text: text, client });
+
+            await sendMessage(from, reply, client.phone_number_id, token); //TODO: cambiar token por client.whatsapp_token
         }
     }
 
