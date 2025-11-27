@@ -131,3 +131,19 @@ app.put("/state/:id", express.json(), async (req, res) => {
         res.status(500).json({ message: "Error del servidor" });
     }
 });
+
+//Create services for state
+app.post("/state_services", express.json(), async (req, res) => {
+    const { user_state_id, service_id } = req.body;
+    try {
+        const result = await pool.query(
+            'INSERT INTO user_states_services (user_state_id, service_id) VALUES ($1, $2) RETURNING *',
+            [user_state_id, service_id]
+        );
+        res.status(201).json(result.rows);
+    }
+    catch (err) {
+        console.error("Error al crear el servicio para el estado", err);
+        res.status(500).json({ message: "Error del servidor" });
+    }
+});

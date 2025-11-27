@@ -47,9 +47,9 @@ export async function handle_conversation({user_phone, message_text, client}) {
             const serv_index = parseInt(message_text) - 1;
             if (serv_index >= 0 && serv_index < services.length) {
                 const selected_service = services[serv_index];
-                message = `Has seleccionado el servicio: ${selected_service.name} por $${selected_service.price}.\n`;
+                message = `Has seleccionado el servicio: ${selected_service.name} por $${Math.floor(selected_service.price)}.\n`;
                 message += `Deseas agregar algo más?\n1. Sí\n2. No\n`;
-                update_state({id: state.user_state_id, step: 2});
+                update_state({id: state.user_state_id, step: 2, employee_selected: state.employee_selected});
             }else{
                 message = `Por favor selecciona una opción válida.\n`;
             }
@@ -58,7 +58,7 @@ export async function handle_conversation({user_phone, message_text, client}) {
 
         case 2:
             if (message_text === '1') {
-                message = await service_message({message, employee_id: selected_employee.id, client_id: client.id, user_phone, state_id});
+                message = await service_message({message, employee_id: state.employee_selected, client_id: client.id, user_phone, state_id});
             }
 
             break;
