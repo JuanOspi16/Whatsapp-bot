@@ -92,3 +92,18 @@ export async function update_state({id, step, employee_selected, selected_date, 
         throw new Error(`Error updating state: ${response.statusText}`);
     }
 };
+
+export async function create_service_for_state({user_state_id, service_id}) {
+    const response = await fetch(`${API_URL}/state_services`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_state_id, service_id }),
+    });
+    if (response.status === 201) {
+        const data = await response.json();
+        return data;
+    }
+    else {
+        throw new Error(`Error creating service for state: ${response.statusText}`);
+    }
+};
