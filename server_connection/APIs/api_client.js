@@ -70,6 +70,7 @@ export async function create_state({user_phone, step, employee_selected, selecte
     });
     if (response.status === 201) {
         const data = await response.json();
+        //console.log("Estado creado:", data);
         return data;
     }
     else {

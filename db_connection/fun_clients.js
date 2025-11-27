@@ -91,7 +91,7 @@ app.get("/state/:user_phone", async (req, res) => {
             [user_phone]
         );
         if (result.rows.length === 0) {
-            return res.status(200).json({ step: -1 });
+            return res.status(200).json([{ step: -1 }]); //Si no hay estado, retornar step -1
         }
         res.status(200).json(result.rows);
     } catch (err) {
