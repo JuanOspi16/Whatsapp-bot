@@ -58,7 +58,7 @@ app.post("/webhook", async (req, res) => {
 
             const data = await handle_conversation({ user_phone: from, message_text: text, client });
 
-            await sendMessage(from, data, client.phone_number_id, token); //TODO: cambiar token por client.whatsapp_token
+            await sendMessage(data, client.phone_number_id, token); //TODO: cambiar token por client.whatsapp_token
         }
     }
 
