@@ -41,17 +41,24 @@ app.post("/webhook", async (req, res) => {
     if (body.object) {
         const message = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
 
-        if (message && message.type === "text") {
+        if (message && (message.type === "text" || message.type === "interactive")) {
             const from = message.from;
-            const text = message.text.body;
+            let text;
+            
+            if (message.type === "interactive") {
+                const button = message.interactive.button_reply;
+                text = button.id;
+            }else{
+                text = message.text.body;
+            }
             
             const bot_number = body.entry[0].changes[0].value.metadata.display_phone_number;
 
             const client = await get_client({ phone_number: bot_number });
 
-            const reply = await handle_conversation({ user_phone: from, message_text: text, client });
+            const data = await handle_conversation({ user_phone: from, message_text: text, client });
 
-            await sendMessage(from, reply, client.phone_number_id, token); //TODO: cambiar token por client.whatsapp_token
+            await sendMessage(from, data, client.phone_number_id, token); //TODO: cambiar token por client.whatsapp_token
         }
     }
 
@@ -59,7 +66,7 @@ app.post("/webhook", async (req, res) => {
 });
 
 // Enviar mensajes
-async function sendMessage(to, text, phoneNumberId, token) {
+async function sendMessage(to, data, phoneNumberId, token) {
     try {
         await axios({
             method: "POST",
@@ -68,11 +75,7 @@ async function sendMessage(to, text, phoneNumberId, token) {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
             },
-            data: {
-                messaging_product: "whatsapp",
-                to,
-                text: { body: text },
-            },
+            data: data,
         });
 
         //console.log(`Mensaje enviado a ${to}: ${text}`);

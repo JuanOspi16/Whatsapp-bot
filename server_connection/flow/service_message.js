@@ -1,6 +1,6 @@
 import { get_services, update_state } from "../APIs/api_client.js";
 
-export async function service_message({message, employee_id, client_id, user_phone, state_id}) {
+export async function service_message({message, employee_id, client_id, state_id}) {
     const services = await get_services({client_id: client_id});
 
     if(services.length > 1) { //Multiple services
