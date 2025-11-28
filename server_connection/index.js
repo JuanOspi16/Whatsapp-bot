@@ -44,7 +44,7 @@ app.post("/webhook", async (req, res) => {
         if (message && (message.type === "text" || message.type === "interactive")) {
             const from = message.from;
             let text;
-            
+
             if (message.type === "interactive") {
                 const button = message.interactive.button_reply;
                 text = button.id;
@@ -54,7 +54,7 @@ app.post("/webhook", async (req, res) => {
             
             const bot_number = body.entry[0].changes[0].value.metadata.display_phone_number;
 
-            const client = await get_client({ phone_number: bot_number });
+            const client = await get_client({ phone_number: bot_number });  //Get the customer by the bot's number
 
             const data = await handle_conversation({ user_phone: from, message_text: text, client });
 
@@ -66,7 +66,7 @@ app.post("/webhook", async (req, res) => {
 });
 
 // Enviar mensajes
-async function sendMessage(to, data, phoneNumberId, token) {
+async function sendMessage(data, phoneNumberId, token) {
     try {
         await axios({
             method: "POST",

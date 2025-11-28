@@ -7,7 +7,7 @@ export async function handle_conversation({user_phone, message_text, client}) {
     const state = states[0];
     let message = ``;
     let data;
-    
+
     switch (state.step) {
         case -1:
             message = `Hola! Bienvenido a ${client.business_name}\n`;
@@ -33,7 +33,6 @@ export async function handle_conversation({user_phone, message_text, client}) {
             break;
             
         case 0:
-            
             const employees_list = await get_employee({id: client.id});
             const emp_index = parseInt(message_text) - 1;
             if (emp_index >= 0 && emp_index < employees_list.length) {
@@ -53,12 +52,13 @@ export async function handle_conversation({user_phone, message_text, client}) {
                 const selected_service = services[serv_index];
                 await create_service_for_state({user_state_id: state.user_state_id, service_id: selected_service.id});
                 message = `Has seleccionado el servicio: ${selected_service.name} por $${Math.floor(selected_service.price)}.\n`;
-                message += `Deseas agregar algo más?`;
+                message += `¿Deseas agregar algo más?`;
                 //Opciones de sí o no para los botones de respuesta rápida
                 const options = [
                     {id: "yes", title: "Sí"},
                     {id: "no", title: "No"}
                 ];
+                
                 data = await type_message({type: 1, message: message, options: options, client: user_phone});
                 update_state({id: state.user_state_id, step: 2, employee_selected: state.employee_selected});
             }else{
@@ -72,7 +72,7 @@ export async function handle_conversation({user_phone, message_text, client}) {
             if (message_text === "yes") {
                 message = await service_message({message, employee_id: state.employee_selected, client_id: client.id, state_id: state.user_state_id});
             }else{
-                //Continuar preguntando fecha
+                //Continuar preguntando fecha y mostrando el total del pago
             }
             data = await type_message({type: 0, message: message, client: user_phone});
             break;

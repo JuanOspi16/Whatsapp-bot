@@ -1,6 +1,8 @@
+//Function to return a JSON depending on the message type
+
 export async function type_message({type, message, options, client}) {
     //Type 0: text message
-    //Type 1: button message
+    //Type 1: interactive message
     let buttons = [];
 
     if (type === 0){

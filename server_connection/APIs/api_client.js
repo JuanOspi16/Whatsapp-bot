@@ -93,7 +93,7 @@ export async function update_state({id, step, employee_selected, selected_date, 
     }
 };
 
-export async function create_service_for_state({user_state_id, service_id}) {
+export async function create_service_for_state({user_state_id, service_id}) { //Create a row for each service of the user
     const response = await fetch(`${API_URL}/state_services`, {
         method: 'POST',
         headers: { "Content-Type": "application/json" },

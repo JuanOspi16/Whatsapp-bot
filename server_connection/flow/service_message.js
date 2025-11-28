@@ -1,12 +1,13 @@
 import { get_services, update_state } from "../APIs/api_client.js";
 
+//Function for print and select the services
 export async function service_message({message, employee_id, client_id, state_id}) {
     const services = await get_services({client_id: client_id});
 
     if(services.length > 1) { //Multiple services
         
         message += `¿Qué servicio deseas?\n`;
-        services.forEach((service, index) => {  //TODO: poner precios
+        services.forEach((service, index) => {  
             message += `${index + 1}. ${service.name}: $${Math.floor(service.price)}\n`;
         })
 

@@ -23,7 +23,7 @@ app.listen(PORT, () => {
     console.log(`Servidor de base de datos escuchando en el puerto ${PORT}`);
 });
 
-//Get clien by phone number
+//Get client by phone number
 app.get("/client/:whatsapp_number", async (req, res) => {
     const { whatsapp_number } = req.params;
 
