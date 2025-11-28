@@ -107,3 +107,33 @@ export async function create_service_for_state({user_state_id, service_id}) { //
         throw new Error(`Error creating service for state: ${response.statusText}`);
     }
 };
+
+export async function get_services_for_state({id}){
+    const response = await fetch(`${API_URL}/state_services/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+    if(response.status === 200){
+        const data = await response.json();
+        return data;
+    }else{
+        throw new Error(`Error fetching services: ${response.statusText}`)
+    }
+}
+
+export async function sum_services_for_state({col, id}){
+    const response = await fetch(`${API_URL}/state_services_sum?col=${col}&id=${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if(response.status === 200){
+        const data = await response.json();
+        return data;
+    }else{
+        throw new Error(`Error fetching services: ${response.statusText}`)
+    }
+}

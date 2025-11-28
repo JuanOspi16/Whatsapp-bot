@@ -147,3 +147,48 @@ app.post("/state_services", express.json(), async (req, res) => {
         res.status(500).json({ message: "Error del servidor" });
     }
 });
+
+//Get the services
+app.get("/state_services/:id", express.json(), async (req, res) => {
+    const {id} = req.params;
+    console.log(id);
+    try{
+        const result = await pool.query(
+            'SELECT * FROM user_states_services WHERE user_state_id = $1', [id]
+        );
+        if (result.rows.length === 0){
+            return res.status(404).json({message: "Servicios no encontrados"})
+        }
+        res.status(200).json(result.rows);
+    }catch(err){
+        console.error("Error al obtener los servicios", err);
+        res.status(500).json({message: "Error del servidor"})
+    }
+})
+
+//Sum minutes or price
+app.get("/state_services_sum", express.json(), async (req, res) => {
+    const {col, id} = req.query;
+
+    const allowedCols = ["price", "duration_minutes"];
+    if (!allowedCols.includes(col)) {
+        return res.status(400).json({ message: "Columna no permitida" });
+    }
+
+    try{
+        const result = await pool.query(
+            `SELECT SUM(${col}) FROM user_states_services 
+            INNER JOIN services
+            ON user_states_services.service_id = services.id
+            WHERE user_state_id = $1;
+            `, [id]
+        );
+        if (result.rows.length === 0){
+            return res.status(404).json({message: "Servicios no encontrados"})
+        }
+        res.status(200).json(result.rows[0]);
+    }catch(err){
+        console.error("Error al obtener los servicios", err);
+        res.status(500).json({message: "Error del servidor"})
+    }
+})

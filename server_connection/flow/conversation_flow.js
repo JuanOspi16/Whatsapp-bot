@@ -1,4 +1,6 @@
-import { get_state,  get_employee, create_state, get_services, update_state, create_service_for_state} from "../APIs/api_client.js";
+import { get_state,  get_employee, create_state, get_services, update_state, create_service_for_state,
+    get_services_for_state, sum_services_for_state
+} from "../APIs/api_client.js";
 import { service_message } from "./service_message.js";
 import { type_message } from "./type_message.js";
 
@@ -73,6 +75,8 @@ export async function handle_conversation({user_phone, message_text, client}) {
                 message = await service_message({message, employee_id: state.employee_selected, client_id: client.id, state_id: state.user_state_id});
             }else{
                 //Continuar preguntando fecha y mostrando el total del pago
+                const total_price = await sum_services_for_state({col: "price", id: state.user_state_id});
+                message += `El precio total será de $${Math.floor(total_price.sum)}`
             }
             data = await type_message({type: 0, message: message, client: user_phone});
             break;
