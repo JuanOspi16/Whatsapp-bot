@@ -210,3 +210,22 @@ app.get("/schedule", express.json(), async(req, res) =>{
         res.status(500).json({message: "Error del servidor"})
     }
 })
+
+app.get("/appointments", express.json(), async(req, res) => {
+    const { id, today, day} = req.query;
+
+    try{
+        const result = await pool.query(
+            `SELECT * FROM appointments
+            WHERE employee_id = $1 AND date = $2 AND date >= $3
+            ORDER BY start_time ASC;`, [id, day, today]
+        );
+        if(result.rows.length === 0){
+            return res.status(200).json([]);
+        }
+        res.status(200).json(result.rows);
+    }catch{
+        console.error("Error al obtener reservas");
+        res.status(500).json({message: "Error del servidor"});
+    }
+})

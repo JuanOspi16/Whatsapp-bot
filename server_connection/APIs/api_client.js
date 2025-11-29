@@ -152,3 +152,18 @@ export async function get_schedules({id, day}){
         throw new Error(`Error fetching schedules: ${response.statusText}`);
     }
 }
+
+export async function get_appointments({id, today, day}){
+    const response = await fetch(`${API_URL}/appointments?id=${id}&today=${today}&day=${day}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if(response.status === 200){
+        const data = await response.json();
+        return data;
+    }else{
+        throw new Error(`Error fetching appointments: ${response.statusText}`);
+    }
+}
