@@ -137,3 +137,18 @@ export async function sum_services_for_state({col, id}){
         throw new Error(`Error fetching services: ${response.statusText}`)
     }
 }
+
+export async function get_schedules({id, day}){
+    const response = await fetch(`${API_URL}/schedules?id=${id}&day=${day}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if(response.status === 200){
+        const data = await response.json();
+        return data;
+    }else{
+        throw new Error(`Error fetching schedules: ${response.statusText}`);
+    }
+}

@@ -2,3 +2,4 @@ state -1 = No existe estado
 state 0 = Ya se preguntó quién desea que lo atienda, y se está esperando por la respuesta
 state 1 = Ya se preguntó qué servicio desea, y se está esperando la respuesta
 state 2 = Se preguntó si desea reservar otro servicio y se está esperando la respuesta
+state 3 = se preguntó por la fecha y se está esperando la respuesta

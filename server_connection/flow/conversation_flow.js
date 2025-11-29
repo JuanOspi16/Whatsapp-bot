@@ -4,6 +4,26 @@ import { get_state,  get_employee, create_state, get_services, update_state, cre
 import { service_message } from "./service_message.js";
 import { type_message } from "./type_message.js";
 
+function esFecha(mensaje){
+    const regexFecha = /^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[0-2])-\d{4}$/;
+    return regexFecha.test(mensaje);
+}
+
+function esValida(fecha){
+    const [day, month, year] = fecha.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+
+    if(date.getFullYear() !== year || date.getMonth() !== (mes-1) || date.getDate() !== day){
+        return false
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+
+    return date >= today;
+}
+
 export async function handle_conversation({user_phone, message_text, client}) {
     const states = await get_state({user_phone});
     const state = states[0];
@@ -76,10 +96,29 @@ export async function handle_conversation({user_phone, message_text, client}) {
             }else{
                 //Continuar preguntando fecha y mostrando el total del pago
                 const total_price = await sum_services_for_state({col: "price", id: state.user_state_id});
-                message += `El precio total será de $${Math.floor(total_price.sum)}`
+                message += `El precio total será de $${Math.floor(total_price.sum)}`;
+                message += `Escribe la fecha en la que deseas recibir el servicio.\n
+                            Debes escribirlo en el siguiente formato (dd-mm-aaaa).`
+                update_state({id: state.user_state_id, step: 3, employee_selected: state.employee_selected})
             }
             data = await type_message({type: 0, message: message, client: user_phone});
             break;
+
+        case 3:
+            if(esFecha(message_text)){
+                if(esValida(message_text)){
+                    const total_minutes = await sum_services_for_state({col: "duration_minutes", id: state.user_state_id});
+                    
+
+                }else{
+                    message = `Escribe una fecha válida, debe ser de hoy en adelante.`
+                }
+
+
+            }else{
+                message = `Escribe una fecha en el formato indicado por favor.`
+            }
+             
     }
     return data;
 }

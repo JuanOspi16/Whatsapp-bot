@@ -192,3 +192,21 @@ app.get("/state_services_sum", express.json(), async (req, res) => {
         res.status(500).json({message: "Error del servidor"})
     }
 })
+
+app.get("/schedule", express.json(), async(req, res) =>{
+    const {id, day} = req.query;
+
+    try{
+        const result = await pool.query(
+            `SELECT * FROM schedules
+            WHERE employee_id = $1 AND weekday = $2`, [id, day]
+        );
+        if(result.rows.length === 0){
+            return res.status(404).json({message: "Día no encontrado"})
+        }
+        res.status(200).json(result.rows[0]);
+    }catch{
+        console.error("Error al obtener los horarios");
+        res.status(500).json({message: "Error del servidor"})
+    }
+})
