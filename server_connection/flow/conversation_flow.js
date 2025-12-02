@@ -115,10 +115,11 @@ export async function handle_conversation({user_phone, message_text, client}) {
                 if(isValid(message_text)){
                     const total_minutes = await sum_services_for_state({col: "duration_minutes", id: state.user_state_id});
                     const date = getDate(message_text);
+                    console.log(date);
                     const nowUTC = new Date();
                     const today = new Date(nowUTC.toLocaleString("en-US", {timeZone: "America/Bogota"}));
             
-                    get_intervals({today: today, date: date, total_minutes: total_minutes, weekday: today.getDay(), id: state.employee_selected});
+                    get_intervals({today: today, date: date, total_minutes: total_minutes, employee_id: state.employee_selected, id: state.user_state_id});
 
                 }else{
                     message = `Escribe una fecha válida, debe ser de hoy en adelante.`

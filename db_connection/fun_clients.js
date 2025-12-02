@@ -213,12 +213,15 @@ app.get("/schedule", express.json(), async(req, res) =>{
 
 app.get("/appointments", express.json(), async(req, res) => {
     const { id, today, day} = req.query;
-
+    const current = new Date(today);
+    let date = new Date(day);
+    date.setHours(0, 0, 0, 0);
+    //console.log(date, current);
     try{
         const result = await pool.query(
             `SELECT * FROM appointments
             WHERE employee_id = $1 AND start_time >= $2 AND end_time >= $3
-            ORDER BY start_time ASC;`, [id, day, today]
+            ORDER BY start_time ASC;`, [id, date, current]
         );
         if(result.rows.length === 0){
             return res.status(200).json([]);
