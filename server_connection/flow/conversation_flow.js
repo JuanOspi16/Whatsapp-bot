@@ -3,17 +3,25 @@ import { get_state,  get_employee, create_state, get_services, update_state, cre
 } from "../APIs/api_client.js";
 import { service_message } from "./service_message.js";
 import { type_message } from "./type_message.js";
+import { get_intervals } from "./get_intervals.js";
 
-function esFecha(mensaje){
+function isDate(message){
     const regexFecha = /^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[0-2])-\d{4}$/;
-    return regexFecha.test(mensaje);
+    return regexFecha.test(message);
 }
 
-function esValida(fecha){
-    const [day, month, year] = fecha.split("-").map(Number);
+function getDate(message){
+    const [day, month, year] = message.split("-").map(Number);
     const date = new Date(year, month - 1, day);
 
-    if(date.getFullYear() !== year || date.getMonth() !== (mes-1) || date.getDate() !== day){
+    return date;
+}
+
+function isValid(message){
+    const [day, month, year] = message.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+
+    if(date.getFullYear() !== year || date.getMonth() !== (month-1) || date.getDate() !== day){
         return false
     }
 
@@ -96,19 +104,21 @@ export async function handle_conversation({user_phone, message_text, client}) {
             }else{
                 //Continuar preguntando fecha y mostrando el total del pago
                 const total_price = await sum_services_for_state({col: "price", id: state.user_state_id});
-                message += `El precio total será de $${Math.floor(total_price.sum)}`;
-                message += `Escribe la fecha en la que deseas recibir el servicio.\n
-                            Debes escribirlo en el siguiente formato (dd-mm-aaaa).`
+                message += `El precio total será de $${Math.floor(total_price.sum)}.\nEscribe la fecha en la que deseas recibir el servicio.\nDebes escribirlo en el siguiente formato (dd-mm-aaaa).`
                 update_state({id: state.user_state_id, step: 3, employee_selected: state.employee_selected})
             }
             data = await type_message({type: 0, message: message, client: user_phone});
             break;
 
         case 3:
-            if(esFecha(message_text)){
-                if(esValida(message_text)){
+            if(isDate(message_text)){
+                if(isValid(message_text)){
                     const total_minutes = await sum_services_for_state({col: "duration_minutes", id: state.user_state_id});
-                    
+                    const date = getDate(message_text);
+                    const nowUTC = new Date();
+                    const today = new Date(nowUTC.toLocaleString("en-US", {timeZone: "America/Bogota"}));
+            
+                    get_intervals({today: today, date: date, total_minutes: total_minutes, weekday: today.getDay(), id: state.employee_selected});
 
                 }else{
                     message = `Escribe una fecha válida, debe ser de hoy en adelante.`
@@ -118,6 +128,7 @@ export async function handle_conversation({user_phone, message_text, client}) {
             }else{
                 message = `Escribe una fecha en el formato indicado por favor.`
             }
+            data = await type_message({type: 0, message: message, client: user_phone});
              
     }
     return data;

@@ -139,7 +139,7 @@ export async function sum_services_for_state({col, id}){
 }
 
 export async function get_schedules({id, day}){
-    const response = await fetch(`${API_URL}/schedules?id=${id}&day=${day}`, {
+    const response = await fetch(`${API_URL}/schedule?id=${id}&day=${day}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

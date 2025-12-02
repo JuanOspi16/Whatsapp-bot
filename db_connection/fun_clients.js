@@ -195,7 +195,7 @@ app.get("/state_services_sum", express.json(), async (req, res) => {
 
 app.get("/schedule", express.json(), async(req, res) =>{
     const {id, day} = req.query;
-
+    console.log(id, day);
     try{
         const result = await pool.query(
             `SELECT * FROM schedules
@@ -217,7 +217,7 @@ app.get("/appointments", express.json(), async(req, res) => {
     try{
         const result = await pool.query(
             `SELECT * FROM appointments
-            WHERE employee_id = $1 AND date = $2 AND date >= $3
+            WHERE employee_id = $1 AND start_time >= $2 AND end_time >= $3
             ORDER BY start_time ASC;`, [id, day, today]
         );
         if(result.rows.length === 0){
