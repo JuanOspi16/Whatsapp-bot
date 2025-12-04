@@ -195,7 +195,7 @@ app.get("/state_services_sum", express.json(), async (req, res) => {
 
 app.get("/schedule", express.json(), async(req, res) =>{
     const {id, day} = req.query;
-    console.log(id, day);
+    //console.log(id, day);
     try{
         const result = await pool.query(
             `SELECT * FROM schedules
@@ -215,8 +215,6 @@ app.get("/appointments", express.json(), async(req, res) => {
     const { id, today, day} = req.query;
     const current = new Date(today);
     let date = new Date(day);
-    date.setHours(0, 0, 0, 0);
-    //console.log(date, current);
     try{
         const result = await pool.query(
             `SELECT * FROM appointments

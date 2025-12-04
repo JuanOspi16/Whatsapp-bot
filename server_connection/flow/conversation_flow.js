@@ -12,7 +12,7 @@ function isDate(message){
 
 function getDate(message){
     const [day, month, year] = message.split("-").map(Number);
-    const date = new Date(year, month - 1, day);
+    const date = new Date(year, month - 1, day, 0, 0, 0);
 
     return date;
 }
@@ -115,10 +115,10 @@ export async function handle_conversation({user_phone, message_text, client}) {
                 if(isValid(message_text)){
                     const total_minutes = await sum_services_for_state({col: "duration_minutes", id: state.user_state_id});
                     const date = getDate(message_text);
-                    console.log(date);
-                    const nowUTC = new Date();
-                    const today = new Date(nowUTC.toLocaleString("en-US", {timeZone: "America/Bogota"}));
-            
+                    console.log("DATE", date.toString());
+                    //const nowUTC = new Date();
+                    //const today = new Date(nowUTC.toLocaleString("en-US", {timeZone: "America/Bogota"}));
+                    const today = new Date();
                     get_intervals({today: today, date: date, total_minutes: total_minutes, employee_id: state.employee_selected, id: state.user_state_id});
 
                 }else{
