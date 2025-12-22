@@ -3,7 +3,7 @@ import { get_state,  get_employee, create_state, get_services, update_state, cre
 } from "../APIs/api_client.js";
 import { service_message } from "./service_message.js";
 import { type_message } from "./type_message.js";
-import { get_intervals } from "./get_intervals.js";
+import { print_intervals } from "./get_intervals.js";
 
 function isDate(message){
     const regexFecha = /^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[0-2])-\d{4}$/;
@@ -119,7 +119,7 @@ export async function handle_conversation({user_phone, message_text, client}) {
                     //const nowUTC = new Date();
                     //const today = new Date(nowUTC.toLocaleString("en-US", {timeZone: "America/Bogota"}));
                     const today = new Date();
-                    message = await get_intervals({today: today, date: date, total_minutes: total_minutes, employee_id: state.employee_selected, id: state.user_state_id});
+                    message = await print_intervals({today: today, date: date, total_minutes: total_minutes, employee_id: state.employee_selected, id: state.user_state_id});
 
                 }else{
                     message = `Escribe una fecha válida, debe ser de hoy en adelante.`

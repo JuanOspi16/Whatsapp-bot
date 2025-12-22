@@ -12,61 +12,82 @@ function minutesDifference(date1, date2){
 }
 
 export async function get_intervals({today, date, total_minutes, employee_id, id}){
-    let message;
+    let intervals = [];
     today = new Date();
     today.setMinutes(today.getMinutes() + 10);
     date = new Date(date);
-    //console.log("TODAY", today);
-    //onsole.log("DATE", date);
-    const schedule = await get_schedules({id: employee_id, day: today.getDay()});
-    //console.log(schedule);
-    //console.log(today, date);
-    if(schedule.start_time === schedule.end_time){
-        message = `El empleado no tiene horario disponible ese día. Por favor selecciona otra fecha.`;
-    }else{
-        const appointments = await get_appointments({id: employee_id, today: today, day: date});
-        message = `Los intervalos disponibles son:\n`;
-        if(appointments.length === 0){
-            message += `- De ${schedule.start_time} a ${schedule.end_time}\n`;
-        }else{
-            let start_time;
-            let end_time;
-            if(today.getTime() === date.getTime()){
-                start_time = today;
-                end_time = setTime(today, schedule.end_time);
-            }else{
-                start_time = setTime(date, schedule.start_time);
-                end_time = setTime(date, schedule.end_time);
-            }
-            
-            for (let i = 0; i <= appointments.length; i++){
-                let difference;
-                let appointment_start, appointment_end;
-                console.log("APPOINTMENTS:", appointments);
-                if(i === 0){
-                    appointment_start = start_time;
-                    appointment_end = new Date(appointments[i].start_time);
-                    difference = minutesDifference(appointment_start, appointment_end);
-                }else if(i === appointments.length){
-                    appointment_start = new Date(appointments[i-1].end_time);
-                    appointment_end = end_time;
-                    difference = minutesDifference(appointment_start, appointment_end);
-                }else{
-                    appointment_start = new Date(appointments[i-1].end_time);
-                    appointment_end = new Date(appointments[i].start_time);
-                    difference = minutesDifference(appointment_start, appointment_end);
-                }
-                //console.log(difference, parseInt(total_minutes.sum));
-                if(difference >= parseInt(total_minutes.sum)){
-                    message += `- De ${appointment_start.getHours().toString().padStart(2, '0')}:${appointment_start.getMinutes().toString().padStart(2, '0')} a ${appointment_end.getHours().toString().padStart(2, '0')}:${appointment_end.getMinutes().toString().padStart(2, '0')}\n`;
-                }
-            }
+    const final_date = setTime(date, "23:59");
 
-        }
-        message += `Por favor selecciona una hora en formato HH:MM`;
+    const schedule = await get_schedules({id: employee_id, day: today.getDay()});
+    const appointments = await get_appointments({id: employee_id, today: today, day: date, final_date: final_date});
+
+    let start_time;
+    let end_time;
+    
+    if(today.toISOString().split('T')[0] === date.toISOString().split('T')[0]){
+        //Si la fecha es hoy
+        start_time = today;
+        end_time = setTime(today, schedule.end_time);
+    }else{
+        //Si la fecha es diferente a hoy
+        start_time = setTime(date, schedule.start_time);
+        end_time = setTime(date, schedule.end_time);
     }
     
-    //console.log(appointments);
+    if(appointments.length === 0){
+        //No hay citas
+        end_time.setMinutes(end_time.getMinutes() - total_minutes.sum);
+        intervals.push({start: `${start_time.getHours().toString().padStart(2, '0')}:${start_time.getMinutes().toString().padStart(2, '0')}`, end: `${end_time.getHours().toString().padStart(2, '0')}:${end_time.getMinutes().toString().padStart(2, '0')}`});
+    }else{
+        for (let i = 0; i <= appointments.length; i++){
+            let difference;
+            let appointment_start, appointment_end;
+            if(i === 0){
+                //Intervalo desde el inicio del horario hasta la primera cita
+                appointment_start = start_time;
+                appointment_end = new Date(appointments[i].start_time);
+                difference = minutesDifference(appointment_start, appointment_end);
+            }else if(i === appointments.length){
+                //Intervalo desde el final de la última cita hasta el final del horario
+                appointment_start = new Date(appointments[i-1].end_time);
+                appointment_end = end_time;
+                difference = minutesDifference(appointment_start, appointment_end);
+            }else{
+                //Intervalo entre dos citas
+                appointment_start = new Date(appointments[i-1].end_time);
+                appointment_end = new Date(appointments[i].start_time);
+                difference = minutesDifference(appointment_start, appointment_end);
+            }
+            
+            if(difference >= parseInt(total_minutes.sum)){
+                //Hay espacio para una cita
+                appointment_end.setMinutes(appointment_end.getMinutes() - total_minutes.sum);
+                intervals.push({start: `${appointment_start.getHours().toString().padStart(2, '0')}:${appointment_start.getMinutes().toString().padStart(2, '0')}`, 
+                end: `${appointment_end.getHours().toString().padStart(2, '0')}:${appointment_end.getMinutes().toString().padStart(2, '0')}`});
+            }
+        }
+    }
+    return intervals;
+}
+
+export async function print_intervals({today, date, total_minutes, employee_id, id}){
+    
+    const intervals = await get_intervals({today: today, date: date, total_minutes: total_minutes, employee_id: employee_id, id: id});
+    
+    let message = ``;
+
+    if(intervals.length === 0){
+        message = `El empleado no tiene horario disponible ese día. Por favor selecciona otra fecha.`;
+    }else{
+        message = `Los intervalos disponibles son:\n`;
+        for(let i = 0; i < intervals.length; i++){
+            const start = intervals[i].start;
+            const end = intervals[i].end;
+            message += `- De ${start} a ${end}\n`;
+        }
+    
+    }
+    message += `Por favor selecciona una hora en formato HH:MM`;
     update_state({id: id, step: 4, employee_selected: employee_id, selected_date: date});
     return message;
 }

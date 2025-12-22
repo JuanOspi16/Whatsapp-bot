@@ -153,8 +153,8 @@ export async function get_schedules({id, day}){
     }
 }
 
-export async function get_appointments({id, today, day}){
-    const response = await fetch(`${API_URL}/appointments?id=${id}&today=${today}&day=${day}`, {
+export async function get_appointments({id, today, day, final_date}){
+    const response = await fetch(`${API_URL}/appointments?id=${id}&today=${today}&day=${day}&final_date=${final_date}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
