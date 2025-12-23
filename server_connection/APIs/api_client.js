@@ -167,3 +167,34 @@ export async function get_appointments({id, today, day, final_date}){
         throw new Error(`Error fetching appointments: ${response.statusText}`);
     }
 }
+
+//Delete state and its services
+export async function delete_state({id}){
+    const response = await fetch(`${API_URL}/state/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if(response.status === 200){
+        const data = await response.json();
+        return data;
+    }else{
+        throw new Error(`Error deleting state: ${response.statusText}`);
+    }
+}
+
+export async function delete_service_state({id}){
+    const response = await fetch(`${API_URL}/service_state/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    if(response.status === 200){
+        const data = await response.json();
+        return data;
+    }else{
+        throw new Error(`Error deleting state: ${response.statusText}`);
+    }
+}

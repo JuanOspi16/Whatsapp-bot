@@ -1,5 +1,5 @@
 import { get_state,  get_employee, create_state, get_services, update_state, create_service_for_state,
-    get_services_for_state, sum_services_for_state
+    get_services_for_state, sum_services_for_state, delete_state, delete_service_state
 } from "../APIs/api_client.js";
 import { service_message } from "./service_message.js";
 import { type_message } from "./type_message.js";
@@ -152,12 +152,31 @@ export async function handle_conversation({user_phone, message_text, client}) {
                 message = await ask_date_message(state.user_state_id, state.employee_selected);
 
             }else if(message_text === "cancel"){
-                //TODO: Implementar cancelación
+
+                await delete_service_state({id: state.user_state_id});
+                const deleted_state = await delete_state({id: state.user_state_id});
+                message = `Tu cita ha sido cancelada. Si deseas agendar una nueva cita, por favor inicia de nuevo la conversación. ¡Que tengas un buen día!`;
+
             }else{
                 message = `Por favor selecciona una opción válida.`;
             }
             data = await type_message({type: 0, message: message, client: user_phone});
             break;
+
+        case 5:
+            //Validar hora y guardar
+            const time_regex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+            if(time_regex.test(message_text)){
+
+                
+
+                await update_state({id: state.user_state_id, step: 6, employee_selected: state.employee_selected, selected_date: state.selected_date, selected_time: message_text});
+                message = `¡Tu cita ha sido agendada con éxito para el ${state.selected_date.toISOString().split('T')[0]} a las ${message_text}!\nGracias por elegirnos.`;
+            }
+            else{
+                message = `Por favor escribe una hora válida en formato HH:MM (24 horas).`;
+            }
+            
              
     }
     return data;

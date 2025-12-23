@@ -231,3 +231,38 @@ app.get("/appointments", express.json(), async(req, res) => {
         res.status(500).json({message: "Error del servidor"});
     }
 })
+
+//Delete state and its services
+app.delete("/state/:id", async(req, res) => {
+    const {id} = req.params;
+    console.log("Cancelar cita para ID:", id);
+    try{
+        const result = await pool.query(
+            `DELETE FROM user_states WHERE user_state_id = $1 RETURNING *;`, [id]
+        );
+        if(result.rows.length === 0){
+            return res.status(404).json({message: "Cita no encontrada"});
+        }
+        res.status(200).json({message: "Cita cancelada"});
+    }catch{
+        console.error("Error al cancelar la cita");
+        res.status(500).json({message: "Error del servidor"});
+    }
+});
+
+app.delete("/service_state/:id", async(req, res) => {
+    const {id} = req.params;
+    console.log("Cancelar cita para ID:", id);
+    try{
+        const result = await pool.query(
+            `DELETE FROM user_states_services WHERE user_state_id = $1 RETURNING *;`, [id]
+        );
+        if(result.rows.length === 0){
+            return res.status(404).json({message: "Servicios de la cita no encontrados"});
+        }
+        res.status(200).json({message: "Servicios de la cita cancelados"});
+    }catch{
+        console.error("Error al cancelar servicios de la cita");
+        res.status(500).json({message: "Error del servidor"});
+    }
+});
