@@ -235,7 +235,6 @@ app.get("/appointments", express.json(), async(req, res) => {
 //Delete state and its services
 app.delete("/state/:id", async(req, res) => {
     const {id} = req.params;
-    console.log("Cancelar cita para ID:", id);
     try{
         const result = await pool.query(
             `DELETE FROM user_states WHERE user_state_id = $1 RETURNING *;`, [id]
@@ -252,7 +251,6 @@ app.delete("/state/:id", async(req, res) => {
 
 app.delete("/service_state/:id", async(req, res) => {
     const {id} = req.params;
-    console.log("Cancelar cita para ID:", id);
     try{
         const result = await pool.query(
             `DELETE FROM user_states_services WHERE user_state_id = $1 RETURNING *;`, [id]

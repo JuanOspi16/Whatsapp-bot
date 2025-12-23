@@ -3,7 +3,8 @@ import { get_state,  get_employee, create_state, get_services, update_state, cre
 } from "../APIs/api_client.js";
 import { service_message } from "./service_message.js";
 import { type_message } from "./type_message.js";
-import { print_intervals } from "./get_intervals.js";
+import { print_intervals, get_intervals } from "./get_intervals.js";
+import { binary_search } from "./binary_search.js";
 
 function isDate(message){
     const regexFecha = /^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[0-2])-\d{4}$/;
@@ -168,14 +169,25 @@ export async function handle_conversation({user_phone, message_text, client}) {
             const time_regex = /^([01]\d|2[0-3]):([0-5]\d)$/;
             if(time_regex.test(message_text)){
 
-                
+                const total_minutes = await sum_services_for_state({col: "duration_minutes", id: state.user_state_id});
+                const today = new Date();
+                const date = new Date(state.selected_date);
+                //console.log("Date:", date);
+                const intervals = await get_intervals({today: today, date: state.selected_date, total_minutes: total_minutes, employee_id: state.employee_selected});
+                const index = await binary_search({array: intervals, target: message_text});
 
-                await update_state({id: state.user_state_id, step: 6, employee_selected: state.employee_selected, selected_date: state.selected_date, selected_time: message_text});
-                message = `¡Tu cita ha sido agendada con éxito para el ${state.selected_date.toISOString().split('T')[0]} a las ${message_text}!\nGracias por elegirnos.`;
+                if(index === -1){
+                    message = `La hora seleccionada no está disponible. Por favor elige otra hora dentro de los intervalos disponibles.`;
+                }else{
+                    await update_state({id: state.user_state_id, step: 6, employee_selected: state.employee_selected, selected_date: state.selected_date, selected_time: message_text});
+                    message = `¡Tu cita ha sido agendada con éxito para el ${date.toISOString().split('T')[0]} a las ${message_text}!\nGracias por elegirnos.`;
+                }
             }
             else{
                 message = `Por favor escribe una hora válida en formato HH:MM (24 horas).`;
             }
+            data = await type_message({type: 0, message: message, client: user_phone});
+            break;
             
              
     }

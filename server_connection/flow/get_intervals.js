@@ -11,7 +11,7 @@ function minutesDifference(date1, date2){
     return (date2 - date1) / (1000 * 60);
 }
 
-export async function get_intervals({today, date, total_minutes, employee_id, id}){
+export async function get_intervals({today, date, total_minutes, employee_id}){
     let intervals = [];
     today = new Date();
     today.setMinutes(today.getMinutes() + 10);
@@ -72,7 +72,7 @@ export async function get_intervals({today, date, total_minutes, employee_id, id
 
 export async function print_intervals({today, date, total_minutes, employee_id, id}){
     
-    const intervals = await get_intervals({today: today, date: date, total_minutes: total_minutes, employee_id: employee_id, id: id});
+    const intervals = await get_intervals({today: today, date: date, total_minutes: total_minutes, employee_id: employee_id});
     
     let message = ``;
 
