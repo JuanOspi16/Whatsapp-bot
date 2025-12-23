@@ -32,6 +32,16 @@ function isValid(message){
     return date >= today;
 }
 
+async function ask_date_message(user_state_id, employee_selected){
+    let message = ``;
+    const total_price = await sum_services_for_state({col: "price", id: user_state_id});
+    message += `El precio total será de $${Math.floor(total_price.sum)}.\nEscribe la fecha en la que deseas recibir el servicio.\nDebes escribirlo en el siguiente formato (dd-mm-aaaa).`
+    update_state({id: user_state_id, step: 3, employee_selected: employee_selected})
+
+    return message;
+}
+
+
 export async function handle_conversation({user_phone, message_text, client}) {
     const states = await get_state({user_phone});
     const state = states[0];
@@ -103,9 +113,7 @@ export async function handle_conversation({user_phone, message_text, client}) {
                 message = await service_message({message, employee_id: state.employee_selected, client_id: client.id, state_id: state.user_state_id});
             }else{
                 //Continuar preguntando fecha y mostrando el total del pago
-                const total_price = await sum_services_for_state({col: "price", id: state.user_state_id});
-                message += `El precio total será de $${Math.floor(total_price.sum)}.\nEscribe la fecha en la que deseas recibir el servicio.\nDebes escribirlo en el siguiente formato (dd-mm-aaaa).`
-                update_state({id: state.user_state_id, step: 3, employee_selected: state.employee_selected})
+                message = await ask_date_message(state.user_state_id, state.employee_selected);
             }
             data = await type_message({type: 0, message: message, client: user_phone});
             break;
@@ -115,21 +123,41 @@ export async function handle_conversation({user_phone, message_text, client}) {
                 if(isValid(message_text)){
                     const total_minutes = await sum_services_for_state({col: "duration_minutes", id: state.user_state_id});
                     const date = getDate(message_text);
-                    //console.log("DATE", date.toString());
-                    //const nowUTC = new Date();
-                    //const today = new Date(nowUTC.toLocaleString("en-US", {timeZone: "America/Bogota"}));
                     const today = new Date();
                     message = await print_intervals({today: today, date: date, total_minutes: total_minutes, employee_id: state.employee_selected, id: state.user_state_id});
-
+                    const options = [
+                        {id: "continue", title: "Continuar"},
+                        {id: "change_date", title: "Cambiar fecha"},
+                        {id: "cancel", title: "Cancelar cita"},
+                    ];
+                    data = await type_message({type: 1, message: message, options: options, client: user_phone});
                 }else{
-                    message = `Escribe una fecha válida, debe ser de hoy en adelante.`
+                    message = `Escribe una fecha válida, debe ser de hoy en adelante.`;
+                    data = await type_message({type: 0, message: message, client: user_phone});
                 }
 
 
             }else{
-                message = `Escribe una fecha en el formato indicado por favor.`
+                message = `Escribe una fecha en el formato indicado por favor.`;
+                data = await type_message({type: 0, message: message, client: user_phone});
+            }
+            break;
+            
+        case 4:
+            if(message_text === "continue"){
+                message = `Perfecto! Por favor escribe la hora en la que deseas tu cita en formato HH:MM (24 horas).`;
+                update_state({id: state.user_state_id, step: 5, employee_selected: state.employee_selected, selected_date: state.selected_date});
+
+            }else if(message_text === "change_date"){
+                message = await ask_date_message(state.user_state_id, state.employee_selected);
+
+            }else if(message_text === "cancel"){
+                //TODO: Implementar cancelación
+            }else{
+                message = `Por favor selecciona una opción válida.`;
             }
             data = await type_message({type: 0, message: message, client: user_phone});
+            break;
              
     }
     return data;

@@ -78,6 +78,7 @@ export async function print_intervals({today, date, total_minutes, employee_id, 
 
     if(intervals.length === 0){
         message = `El empleado no tiene horario disponible ese día. Por favor selecciona otra fecha.`;
+        update_state({id: id, step: 3, employee_selected: employee_id});
     }else{
         message = `Los intervalos disponibles son:\n`;
         for(let i = 0; i < intervals.length; i++){
@@ -85,9 +86,10 @@ export async function print_intervals({today, date, total_minutes, employee_id, 
             const end = intervals[i].end;
             message += `- De ${start} a ${end}\n`;
         }
+        update_state({id: id, step: 4, employee_selected: employee_id, selected_date: date});
     
     }
-    message += `Por favor selecciona una hora en formato HH:MM`;
-    update_state({id: id, step: 4, employee_selected: employee_id, selected_date: date});
+    //message += `Por favor selecciona una hora en formato HH:MM`;
+    
     return message;
 }
