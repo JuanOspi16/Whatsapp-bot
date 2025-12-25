@@ -1,3 +1,5 @@
+import e from "express";
+
 export const API_URL = 'http://localhost:3001';
 
 export async function get_client({phone_number}) {
@@ -198,3 +200,32 @@ export async function delete_service_state({id}){
         throw new Error(`Error deleting state: ${response.statusText}`);
     }
 }
+
+//Create appointment
+export async function create_appointment({employee_id, user_phone, name, start_time, end_time, state}) {
+    const response = await fetch(`${API_URL}/appointments`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employee_id, user_phone, name, start_time, end_time, state }),
+    });
+    if (response.status === 201) {
+        const data = await response.json();
+        return data;
+    }else {
+        throw new Error(`Error creating appointment: ${response.statusText}`);
+    }
+};
+
+export async function create_appointment_services({appointment_id, service_id}) {
+    const response = await fetch(`${API_URL}/appointment_services`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appointment_id, service_id }),
+    });
+    if (response.status === 201) {
+        const data = await response.json();
+        return data;
+    }else {
+        throw new Error(`Error creating appointment services: ${response.statusText}`);
+    }
+};

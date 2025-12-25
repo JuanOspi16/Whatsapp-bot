@@ -1,5 +1,5 @@
 import { get_state,  get_employee, create_state, get_services, update_state, create_service_for_state,
-    get_services_for_state, sum_services_for_state, delete_state, delete_service_state
+    get_services_for_state, sum_services_for_state, delete_state, delete_service_state, create_appointment, create_appointment_services
 } from "../APIs/api_client.js";
 import { service_message } from "./service_message.js";
 import { type_message } from "./type_message.js";
@@ -42,8 +42,16 @@ async function ask_date_message(user_state_id, employee_selected){
     return message;
 }
 
+function buildLocalDate(dateStr, timeStr) {
+    console.log("dateStr:", dateStr);
+    const [year, month, day] = dateStr.split("-").map(Number);
+    console.log("Parsed date:", day, month, year);
+    const [hour, minute] = timeStr.split(":").map(Number);
 
-export async function handle_conversation({user_phone, message_text, client}) {
+    return new Date(year, month - 1, day, hour, minute, 0);
+}
+
+export async function handle_conversation({user_phone, message_text, client, customer_name}) {
     const states = await get_state({user_phone});
     const state = states[0];
     let message = ``;
@@ -166,21 +174,28 @@ export async function handle_conversation({user_phone, message_text, client}) {
 
         case 5:
             //Validar hora y guardar
-            const time_regex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+            const time_regex = /^([01]\d|2[0-3]):([0-5]\d)$/; //Formato HH:MM 24 horas
             if(time_regex.test(message_text)){
 
                 const total_minutes = await sum_services_for_state({col: "duration_minutes", id: state.user_state_id});
                 const today = new Date();
-                const date = new Date(state.selected_date);
-                //console.log("Date:", date);
                 const intervals = await get_intervals({today: today, date: state.selected_date, total_minutes: total_minutes, employee_id: state.employee_selected});
-                const index = await binary_search({array: intervals, target: message_text});
+                const index = await binary_search({array: intervals, target: message_text});  //Buscar si la hora está dentro de los intervalos disponibles
 
                 if(index === -1){
                     message = `La hora seleccionada no está disponible. Por favor elige otra hora dentro de los intervalos disponibles.`;
                 }else{
+                    let start_time = buildLocalDate(String(state.selected_date.split('T')[0]), message_text);
+                    
+                    const end_time = new Date(start_time.getTime() + total_minutes.sum * 60000);
+                    const appointment = await create_appointment({employee_id: state.employee_selected, user_phone: user_phone, name: customer_name, start_time: start_time, end_time: end_time, state: "Agendada"});
+                    const services_for_state = await get_services_for_state({id: state.user_state_id});
+
+                    for(const service of services_for_state){
+                        await create_appointment_services({appointment_id: appointment[0].id, service_id: service.service_id});
+                    }
                     await update_state({id: state.user_state_id, step: 6, employee_selected: state.employee_selected, selected_date: state.selected_date, selected_time: message_text});
-                    message = `¡Tu cita ha sido agendada con éxito para el ${date.toISOString().split('T')[0]} a las ${message_text}!\nGracias por elegirnos.`;
+                    message = `¡Tu cita ha sido agendada con éxito para el ${start_time.toISOString().split('T')[0]} a las ${message_text}!\nGracias por elegirnos.`;
                 }
             }
             else{

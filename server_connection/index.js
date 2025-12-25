@@ -43,6 +43,7 @@ app.post("/webhook", async (req, res) => {
 
         if (message && (message.type === "text" || message.type === "interactive")) {
             const from = message.from;
+            const name = body.entry[0].changes[0].value.contacts?.[0]?.profile?.name;
             let text;
 
             if (message.type === "interactive") {
@@ -56,7 +57,7 @@ app.post("/webhook", async (req, res) => {
 
             const client = await get_client({ phone_number: bot_number });  //Get the customer by the bot's number
 
-            const data = await handle_conversation({ user_phone: from, message_text: text, client });
+            const data = await handle_conversation({ user_phone: from, message_text: text, client: client, customer_name: name });
 
             await sendMessage(data, client.phone_number_id, token); //TODO: cambiar token por client.whatsapp_token
         }

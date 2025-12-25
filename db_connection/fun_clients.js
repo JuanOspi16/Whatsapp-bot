@@ -264,3 +264,33 @@ app.delete("/service_state/:id", async(req, res) => {
         res.status(500).json({message: "Error del servidor"});
     }
 });
+
+//Create appointment
+app.post("/appointments", express.json(), async(req, res) => {
+    const { employee_id, user_phone, name, start_time, end_time, state } = req.body;
+    try{
+        const result = await pool.query(
+            `INSERT INTO appointments (employee_id, customer_name, customer_phone, start_time, end_time, state) 
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;`, [employee_id, name, user_phone, start_time, end_time, state]
+        );
+        res.status(201).json(result.rows);
+    }catch{
+        console.error("Error al crear la reserva");
+        res.status(500).json({message: "Error del servidor"});
+    }
+});
+
+//Create services for appointment
+app.post("/appointment_services", express.json(), async (req, res) => {
+    const { appointment_id, service_id } = req.body;
+    try {
+        const result = await pool.query(
+            'INSERT INTO appointment_services (appointment_id, service_id) VALUES ($1, $2) RETURNING *',
+            [appointment_id, service_id]
+        );
+        res.status(201).json(result.rows);
+    }catch{
+        console.error("Error al crear los servicios de la reserva");
+        res.status(500).json({message: "Error del servidor"});
+    }
+});

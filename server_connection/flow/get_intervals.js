@@ -1,6 +1,6 @@
 import { get_schedules, get_appointments, update_state } from "../APIs/api_client.js";
 
-function setTime(date, timeString){
+export async function set_time(date, timeString){
     const time = new Date(date);
     const [hours, minutes] = timeString.split(':').map(Number);
     time.setHours(hours, minutes, 0, 0);
@@ -16,8 +16,7 @@ export async function get_intervals({today, date, total_minutes, employee_id}){
     today = new Date();
     today.setMinutes(today.getMinutes() + 10);
     date = new Date(date);
-    const final_date = setTime(date, "23:59");
-
+    const final_date = await set_time(date, "23:59");
     const schedule = await get_schedules({id: employee_id, day: today.getDay()});
     const appointments = await get_appointments({id: employee_id, today: today, day: date, final_date: final_date});
 
@@ -27,11 +26,11 @@ export async function get_intervals({today, date, total_minutes, employee_id}){
     if(today.toISOString().split('T')[0] === date.toISOString().split('T')[0]){
         //Si la fecha es hoy
         start_time = today;
-        end_time = setTime(today, schedule.end_time);
+        end_time = await set_time(today, schedule.end_time);
     }else{
         //Si la fecha es diferente a hoy
-        start_time = setTime(date, schedule.start_time);
-        end_time = setTime(date, schedule.end_time);
+        start_time = await set_time(date, schedule.start_time);
+        end_time = await set_time(date, schedule.end_time);
     }
     
     if(appointments.length === 0){
