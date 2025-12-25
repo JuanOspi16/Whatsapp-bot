@@ -3,3 +3,5 @@ state 0 = Ya se preguntó quién desea que lo atienda, y se está esperando por 
 state 1 = Ya se preguntó qué servicio desea, y se está esperando la respuesta
 state 2 = Se preguntó si desea reservar otro servicio y se está esperando la respuesta
 state 3 = se preguntó por la fecha y se está esperando la respuesta
+state 4 = Se muestran los intervalos y se espera la afirmación para continuar
+state 5 = se preguntó por la hora y se espera la respuesta
